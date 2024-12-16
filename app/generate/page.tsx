@@ -1,3 +1,5 @@
+"use client";
+
 import { use, useState } from "react";
 import { generate } from "../api/actions";
 import { readStreamableValue } from "ai/rsc";
@@ -54,6 +56,17 @@ export default function Generate() {
         <p>Loading...</p>
       </div>
     );
+  } else if (output !== "") {
+    <div className="container">
+      <div className="output_container">
+        <p className="output_text">{output}</p>
+      </div>
+      <div className="restart_container">
+        <button className="restart_button" onClick={() => setOutput("")}>
+          Reset
+        </button>
+      </div>
+    </div>;
   } else {
     return (
       <div className="container">
