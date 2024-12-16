@@ -34,9 +34,9 @@ export default function Generate() {
     },
   ];
 
-  const handleChefChange = (event) => {
-    console.log(event.target.value);
-    setChef(event.target.value);
+  const handleChefChange = (description: string, buttonText: string) => {
+    setChef(description);
+    setButtonText(buttonText);
   };
 
   const handleSubmit = async () => {
@@ -107,7 +107,7 @@ export default function Generate() {
         </div>
 
         {/* Container for image upload */}
-
+        
         <div className="prompt_container">
           <label htmlFor="prompt_input">Prompt</label>
           <input
