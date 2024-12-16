@@ -12,8 +12,9 @@ export default function Generate() {
   const [chef, setChef] = useState(
     "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
   );
-
   const [buttonText, setButtonText] = useState("Letsa go!");
+
+  const [prompt, setPrompt] = useState<string>("");
 
   const [output, setOutput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,10 +40,14 @@ export default function Generate() {
     setButtonText(buttonText);
   };
 
+  const handlePromptChange = (event) => {
+    setPrompt(event.target.value);
+  };
+
   const handleSubmit = async () => {
     // Call the APIs and retrieve a response
     const { response } = await generate(
-      `You are ${chef}. Generate a recipe with cabbage`
+      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}`
     );
 
     setLoading(true);
@@ -108,7 +113,7 @@ export default function Generate() {
           })}
         </div>
 
-        {/* Container for image upload */}
+        {/* Container for further prompting */}
 
         <div className="prompt_container">
           <label htmlFor="prompt_input">Prompt</label>
@@ -116,6 +121,7 @@ export default function Generate() {
             type="textarea"
             id="prompt_input"
             placeholder="Enter any additional information here..."
+            onChange={handlePromptChange}
           />
         </div>
 
