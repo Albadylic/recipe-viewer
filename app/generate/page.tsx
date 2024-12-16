@@ -27,9 +27,9 @@ export default function Generate() {
     },
   ];
 
-  const handleChefChange = (event) => {
-    console.log(event.target.value);
-    setChef(event.target.value);
+  const handleChefChange = (description: string, buttonText: string) => {
+    setChef(description);
+    setButtonText(buttonText);
   };
 
   const handleSubmit = () => {
@@ -47,7 +47,7 @@ export default function Generate() {
       {/* Container for chef selection */}
       <div className="chef_container">
         <label htmlFor="chef_radios">Pick a chef</label>
-        {chefs.map(({ name, emoji, description }, index) => {
+        {chefs.map(({ name, emoji, description, buttonText }, index) => {
           return (
             <div
               key={name}
@@ -56,9 +56,9 @@ export default function Generate() {
               <input
                 id={name}
                 type="radio"
-                value={description}
+                value={name}
                 name="genre"
-                onChange={handleChefChange}
+                onChange={() => handleChefChange(description, buttonText)}
                 defaultChecked={index == 0 ? true : false}
               />
               <label className="ml-2" htmlFor={name}>
@@ -82,7 +82,9 @@ export default function Generate() {
       </div>
 
       {/* Container for generation button */}
-      <button className="generate_container" onClick={handleSubmit}></button>
+      <button className="generate_container" onClick={handleSubmit}>
+        {buttonText}
+      </button>
     </div>
   );
 }
