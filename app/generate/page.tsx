@@ -1,8 +1,10 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { generate } from "../api/actions";
 import { readStreamableValue } from "ai/rsc";
+
+export const runtime = "edge";
 
 export default function Generate() {
   const [image, setImage] = useState(null);
@@ -46,6 +48,8 @@ export default function Generate() {
     for await (const delta of readStreamableValue(response)) {
       setOutput((currentOutput) => `${currentOutput}${delta}`);
     }
+
+    console.log(output);
 
     setLoading(false);
   };
