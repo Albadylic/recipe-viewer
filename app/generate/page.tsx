@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { generate } from "../api/actions";
+import { generate } from "../api/chat/actions";
 import { readStreamableValue } from "ai/rsc";
 
 export const runtime = "edge";
@@ -47,8 +47,10 @@ export default function Generate() {
   const handleSubmit = async () => {
     // Call the APIs and retrieve a response
     const { response } = await generate(
-      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}`
+      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}.`
     );
+
+    console.log({ response });
 
     setLoading(true);
 
@@ -56,7 +58,7 @@ export default function Generate() {
       setOutput((currentOutput) => `${currentOutput}${delta}`);
     }
 
-    console.log(output);
+    console.log(response);
 
     setLoading(false);
   };
