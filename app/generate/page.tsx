@@ -10,7 +10,7 @@ export default function Generate() {
   const [image, setImage] = useState(null);
 
   const [chef, setChef] = useState(
-    "An Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
+    "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
   );
 
   const [buttonText, setButtonText] = useState("Letsa go!");
@@ -23,13 +23,13 @@ export default function Generate() {
       name: "Mario",
       emoji: "👨🏻‍🍳",
       description:
-        "An Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
+        "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
       buttonText: "Letsa go!",
     },
     {
       name: "Sigma Chad",
       emoji: "🔥",
-      description: "A Gen Z chef whos riz makes every recipe hit different.",
+      description: "a Gen Z chef whos riz makes every recipe hit different.",
       buttonText: "Let him cook!",
     },
   ];
@@ -41,7 +41,9 @@ export default function Generate() {
 
   const handleSubmit = async () => {
     // Call the APIs and retrieve a response
-    const { response } = await generate(`Generate a recipe with cabbage`);
+    const { response } = await generate(
+      `You are ${chef}. Generate a recipe with cabbage`
+    );
 
     setLoading(true);
 
@@ -94,7 +96,7 @@ export default function Generate() {
                   type="radio"
                   value={description}
                   name="genre"
-                  onChange={handleChefChange}
+                  onChange={() => handleChefChange(description, buttonText)}
                   defaultChecked={index == 0 ? true : false}
                 />
                 <label className="ml-2" htmlFor={name}>
@@ -107,7 +109,7 @@ export default function Generate() {
         </div>
 
         {/* Container for image upload */}
-        
+
         <div className="prompt_container">
           <label htmlFor="prompt_input">Prompt</label>
           <input
