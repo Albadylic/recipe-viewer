@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { use, useState } from "react";
+import { generate } from "../api/actions";
+import { readStreamableValue } from "ai/rsc";
 
 export default function Generate() {
   const [image, setImage] = useState(null);
@@ -8,6 +10,9 @@ export default function Generate() {
   );
 
   const [buttonText, setButtonText] = useState("Letsa go!");
+
+  const [output, setOutput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const chefs = [
     {
@@ -30,57 +35,76 @@ export default function Generate() {
     setChef(event.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Call the APIs and retrieve a response
+    const { response } = await generate(`Generate a recipe with cabbage`);
+
+    setLoading(true);
+
+    for await (const delta of readStreamableValue(response)) {
+      setOutput((currentOutput) => `${currentOutput}${delta}`);
+    }
+
+    setLoading(false);
   };
 
-  return (
-    <div className="container">
-      {/* Container for image upload */}
-      <div className="upload_container">
-        <label htmlFor="upload_input">Upload an image: </label>
-        <input id="upload_input" type="file" accept="image/*" />
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
       </div>
+    );
+  } else {
+    return (
+      <div className="container">
+        {/* Container for image upload */}
+        <div className="upload_container">
+          <label htmlFor="upload_input">Upload an image: </label>
+          <input id="upload_input" type="file" accept="image/*" />
+        </div>
 
-      {/* Container for chef selection */}
-      <div className="chef_container">
-        <label htmlFor="chef_radios">Pick a chef</label>
-        {chefs.map(({ name, emoji, description }, index) => {
-          return (
-            <div
-              key={name}
-              className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
-            >
-              <input
-                id={name}
-                type="radio"
-                value={description}
-                name="genre"
-                onChange={handleChefChange}
-                defaultChecked={index == 0 ? true : false}
-              />
-              <label className="ml-2" htmlFor={name}>
-                {`${emoji} ${name}`}
-              </label>
-              <p>{description}</p>
-            </div>
-          );
-        })}
+        {/* Container for chef selection */}
+        <div className="chef_container">
+          <label htmlFor="chef_radios">Pick a chef</label>
+          {chefs.map(({ name, emoji, description }, index) => {
+            return (
+              <div
+                key={name}
+                className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
+              >
+                <input
+                  id={name}
+                  type="radio"
+                  value={description}
+                  name="genre"
+                  onChange={handleChefChange}
+                  defaultChecked={index == 0 ? true : false}
+                />
+                <label className="ml-2" htmlFor={name}>
+                  {`${emoji} ${name}`}
+                </label>
+                <p>{description}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Container for image upload */}
+
+        <div className="prompt_container">
+          <label htmlFor="prompt_input">Prompt</label>
+          <input
+            type="textarea"
+            id="prompt_input"
+            placeholder="Enter any additional information here..."
+          />
+        </div>
+
+        {/* Container for generation button */}
+        <button className="generate_container" onClick={handleSubmit}>
+          {buttonText}
+        </button>
       </div>
-
-      {/* Container for image upload */}
-
-      <div className="prompt_container">
-        <label htmlFor="prompt_input">Prompt</label>
-        <input
-          type="textarea"
-          id="prompt_input"
-          placeholder="Enter any additional information here..."
-        />
-      </div>
-
-      {/* Container for generation button */}
-      <button className="generate_container" onClick={handleSubmit}></button>
-    </div>
-  );
+    );
+  }
 }
