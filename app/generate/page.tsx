@@ -90,7 +90,7 @@ export default function Generate() {
         {/* Container for chef selection */}
         <div className="chef_container">
           <label htmlFor="chef_radios">Pick a chef</label>
-          {chefs.map(({ name, emoji, description }, index) => {
+          {chefs.map(({ name, emoji, description, buttonText }, index) => {
             return (
               <div
                 key={name}
@@ -100,7 +100,7 @@ export default function Generate() {
                   id={name}
                   type="radio"
                   value={description}
-                  name="genre"
+                  name="chef"
                   onChange={() => handleChefChange(description, buttonText)}
                   defaultChecked={index == 0 ? true : false}
                 />
