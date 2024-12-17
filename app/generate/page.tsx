@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { analyse } from "../api/analyse/actions";
 import { generate } from "../api/chat/actions";
 import { readStreamableValue } from "ai/rsc";
 
 export const runtime = "edge";
 
 export default function Generate() {
-  const [image, setImage] = useState(null);
+  const [imageURL, setImageURL] = useState<string | null>(null);
+  const [imageAnalysis, setImageAnalysis] = useState<string | null>(null);
 
   const [chef, setChef] = useState(
     "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
@@ -59,6 +61,18 @@ export default function Generate() {
     setLoading(false);
   };
 
+  const handleUpload = async (event) => {
+    if (event.target.files) {
+      const url = URL.createObjectURL(event.target.files[0]);
+      setImageURL(url);
+      const response = await analyse(imageURL);
+      console.log(response);
+      // setImageAnalysis(response);
+    } else {
+      // Error when no valid files
+    }
+  };
+
   if (loading) {
     return (
       <div>
@@ -84,7 +98,12 @@ export default function Generate() {
         {/* Container for image upload */}
         <div className="upload_container">
           <label htmlFor="upload_input">Upload an image: </label>
-          <input id="upload_input" type="file" accept="image/*" />
+          <input
+            id="upload_input"
+            type="file"
+            accept="image/*"
+            onChange={handleUpload}
+          />
         </div>
 
         {/* Container for chef selection */}
