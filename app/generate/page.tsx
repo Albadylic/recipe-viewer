@@ -58,7 +58,8 @@ export default function Generate() {
       setOutput((currentOutput) => `${currentOutput}${delta}`);
     }
 
-    console.log(response);
+    console.log({ response });
+    console.log({ output });
 
     setLoading(false);
   };
@@ -70,16 +71,18 @@ export default function Generate() {
       </div>
     );
   } else if (output !== "") {
-    <div className="container">
-      <div className="output_container">
-        <p className="output_text">{output}</p>
+    return (
+      <div className="container">
+        <div className="output_container">
+          <p className="output_text">{output}</p>
+        </div>
+        <div className="restart_container">
+          <button className="restart_button" onClick={() => setOutput("")}>
+            Reset
+          </button>
+        </div>
       </div>
-      <div className="restart_container">
-        <button className="restart_button" onClick={() => setOutput("")}>
-          Reset
-        </button>
-      </div>
-    </div>;
+    );
   } else {
     return (
       <div className="container">
