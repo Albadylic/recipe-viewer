@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { analyse } from "../api/analyse/actions";
+import { analyse } from "../api/analyse/refactor";
 import { generate } from "../api/chat/actions";
 import { readStreamableValue } from "ai/rsc";
 

@@ -23,9 +23,6 @@ export async function analyse(input: string | null) {
       );
     }
 
-    const prompt = `
-    Analysing a picture of food and drink. Describe the visible food and drink items, list ingredients if detectable, and suggest the name for the dish if you can deduce it.`;
-
     const stream = createStreamableValue();
 
     (async () => {
