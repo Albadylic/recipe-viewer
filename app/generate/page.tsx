@@ -50,16 +50,11 @@ export default function Generate() {
       `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}.`
     );
 
-    console.log({ response });
-
     setLoading(true);
 
     for await (const delta of readStreamableValue(response)) {
       setOutput((currentOutput) => `${currentOutput}${delta}`);
     }
-
-    console.log({ response });
-    console.log({ output });
 
     setLoading(false);
   };
