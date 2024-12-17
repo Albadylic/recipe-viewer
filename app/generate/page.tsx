@@ -8,18 +8,27 @@ import { readStreamableValue } from "ai/rsc";
 export const runtime = "edge";
 
 export default function Generate() {
-  const [imageURL, setImageURL] = useState<string | null>(null);
+  // State to store the file
+  const [file, setFile] = useState<File | null>(null);
+
+  // State to store the base64
+  const [base64, setBase64] = useState<string | null>(null);
+
+  // State to store the returned analysis
   const [imageAnalysis, setImageAnalysis] = useState<string | null>(null);
 
+  // States for the chef description and buttonText
   const [chef, setChef] = useState(
     "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
   );
   const [buttonText, setButtonText] = useState("Letsa go!");
 
+  // State for user prompt
   const [prompt, setPrompt] = useState<string>("");
 
-  const [output, setOutput] = useState<string>("");
+  // States for loading and final output
   const [loading, setLoading] = useState<boolean>(false);
+  const [output, setOutput] = useState<string>("");
 
   const chefs = [
     {
@@ -61,16 +70,43 @@ export default function Generate() {
     setLoading(false);
   };
 
-  const handleUpload = async (event) => {
-    if (event.target.files) {
-      const url = URL.createObjectURL(event.target.files[0]);
-      // setImageURL(url);
-      const response = await analyse(url);
-      console.log(response);
-      // setImageAnalysis(response);
-    } else {
-      // Error when no valid files
+  // Convert a file to base64 string
+  const toBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+
+      fileReader.readAsDataURL(file);
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) {
+      return;
     }
+
+    setFile(event.target.files[0]);
+  };
+
+  const handleUpload = async (event: React.MouseEvent) => {
+    if (!file) {
+      return;
+    }
+
+    const base64 = await toBase64(file);
+
+    setBase64(base64 as string);
+
+    const response = await analyse(base64 as string);
+    console.log(response);
+    // // setImageAnalysis(response);
   };
 
   if (loading) {
@@ -102,8 +138,9 @@ export default function Generate() {
             id="upload_input"
             type="file"
             accept="image/*"
-            onChange={handleUpload}
+            onChange={handleFileChange}
           />
+          <button onClick={handleUpload}>Upload</button>
         </div>
 
         {/* Container for chef selection */}

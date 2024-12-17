@@ -17,7 +17,7 @@ export async function analyse(input: string) {
           {
             type: "image_url",
             image_url: {
-              url: input,
+              url: `data:image/jpeg;base64,${input}`,
             },
           },
         ],
