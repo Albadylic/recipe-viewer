@@ -61,17 +61,17 @@ export default function Generate() {
     setLoading(false);
   };
 
-  // const handleUpload = async (event) => {
-  //   if (event.target.files) {
-  //     const url = URL.createObjectURL(event.target.files[0]);
-  //     // setImageURL(url);
-  //     const response = await analyse(url);
-  //     console.log(response);
-  //     // setImageAnalysis(response);
-  //   } else {
-  //     // Error when no valid files
-  //   }
-  // };
+  const handleUpload = async (event) => {
+    if (event.target.files) {
+      const url = URL.createObjectURL(event.target.files[0]);
+      // setImageURL(url);
+      const response = await analyse(url);
+      console.log(response);
+      // setImageAnalysis(response);
+    } else {
+      // Error when no valid files
+    }
+  };
 
   if (loading) {
     return (
@@ -102,7 +102,7 @@ export default function Generate() {
             id="upload_input"
             type="file"
             accept="image/*"
-            // onChange={handleUpload}
+            onChange={handleUpload}
           />
         </div>
 

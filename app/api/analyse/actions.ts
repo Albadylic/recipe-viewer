@@ -1,8 +1,12 @@
 "use server";
 
-import OpenAI from "openai";
-import dotenv from "dotenv";
-dotenv.config();
+import { openai } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import { createStreamableValue } from "ai/rsc";
+// import dotenv from "dotenv";
+// dotenv.config();
+
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Analyse image
 export async function analyse(input: string | null) {
@@ -19,28 +23,42 @@ export async function analyse(input: string | null) {
       );
     }
 
-    const openai = new OpenAI({ apiKey: apiKey });
-
     const prompt = `
-    Analysing a picture of food and drink.
-    Input Image URL: ${input}
-    Describe the visible food and drink items, list ingredients if detectable, and suggest a potential name for the dish.
-  `;
+    Analysing a picture of food and drink. Describe the visible food and drink items, list ingredients if detectable, and suggest the name for the dish if you can deduce it.`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    if (response.choices && response.choices.length > 0) {
-      return response.choices[0].message.content.trim();
-    } else {
-      return "No response from the AI model.";
-    }
+    const stream = createStreamableValue();
+
+    (async () => {
+      const { textStream } = await streamText({
+        model: openai("gpt-4-turbo"),
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: prompt,
+              },
+
+              {
+                type: "image",
+                image_url: {
+                  url: input,
+                },
+              },
+            ],
+          },
+        ],
+      });
+
+      for await (const delta of textStream) {
+        stream.update(delta);
+      }
+
+      stream.done();
+    })();
+
+    return { response: stream.value };
   } catch (error) {
     return `Error: ${error.message}`;
   }
