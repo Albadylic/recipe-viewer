@@ -17,13 +17,12 @@ export async function analyse(input: string) {
           {
             type: "image_url",
             image_url: {
-              url: `data:image/jpeg;base64,${input}`,
+              url: input,
             },
           },
         ],
       },
     ],
   });
-  console.log(response.choices[0]);
+  return response.choices[0].message.content;
 }
-// main();

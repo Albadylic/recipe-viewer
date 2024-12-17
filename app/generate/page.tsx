@@ -95,7 +95,7 @@ export default function Generate() {
     setFile(event.target.files[0]);
   };
 
-  const handleUpload = async (event: React.MouseEvent) => {
+  const handleUpload = async () => {
     if (!file) {
       return;
     }
@@ -106,7 +106,7 @@ export default function Generate() {
 
     const response = await analyse(base64 as string);
     console.log(response);
-    // // setImageAnalysis(response);
+    setImageAnalysis(response);
   };
 
   if (loading) {
@@ -137,7 +137,7 @@ export default function Generate() {
           <input
             id="upload_input"
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg"
             onChange={handleFileChange}
           />
           <button onClick={handleUpload}>Upload</button>
