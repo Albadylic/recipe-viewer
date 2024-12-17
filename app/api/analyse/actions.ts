@@ -1,33 +1,45 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 // Analyse image
 export async function analyse(input: string | null) {
-  if (input === null) {
+  console.log({ input });
+
+  if (!input) {
     return "No image provided";
-  } else {
+  }
+
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error(
+        "The OPENAI_API_KEY environment variable is missing or empty. Please set it before running the script."
+      );
+    }
+
+    const openai = new OpenAI({ apiKey: apiKey });
+
+    const prompt = `
+    Analysing a picture of food and drink.
+    Input Image URL: ${input}
+    Describe the visible food and drink items, list ingredients if detectable, and suggest a potential name for the dish.
+  `;
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4",
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Analyse the food and drink in this picture. List the ingredients you can detect. If you can identify the name of the dish, state that name.",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: input,
-              },
-            },
-          ],
+          content: prompt,
         },
       ],
     });
-
-    return response.choices[0];
+    if (response.choices && response.choices.length > 0) {
+      return response.choices[0].message.content.trim();
+    } else {
+      return "No response from the AI model.";
+    }
+  } catch (error) {
+    return `Error: ${error.message}`;
   }
 }
