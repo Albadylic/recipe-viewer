@@ -1,9 +1,11 @@
+"use server";
+
 import OpenAI from "openai";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Analyse image
 export async function analyse(input: string | null) {
-  console.log({ input });
-
   if (!input) {
     return "No image provided";
   }
