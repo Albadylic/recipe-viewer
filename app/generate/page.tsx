@@ -1,23 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { analyse } from "../api/analyse/refactor";
 import { generate } from "../api/chat/actions";
 import { readStreamableValue } from "ai/rsc";
 
 export const runtime = "edge";
 
 export default function Generate() {
-  const [image, setImage] = useState(null);
+  // State to store the file
+  const [file, setFile] = useState<File | null>(null);
 
+  // State to store the returned analysis
+  const [imageAnalysis, setImageAnalysis] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+
+  // States for the chef description and buttonText
   const [chef, setChef] = useState(
     "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
   );
   const [buttonText, setButtonText] = useState("Letsa go!");
 
+  // State for user prompt
   const [prompt, setPrompt] = useState<string>("");
 
-  const [output, setOutput] = useState<string>("");
+  // States for loading and final output
   const [loading, setLoading] = useState<boolean>(false);
+  const [output, setOutput] = useState<string>("");
 
   const chefs = [
     {
@@ -47,10 +56,8 @@ export default function Generate() {
   const handleSubmit = async () => {
     // Call the APIs and retrieve a response
     const { response } = await generate(
-      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}.`
+      `You are ${chef}. Generate a recipe for ${imageAnalysis}. Take note of the following: ${prompt}.`
     );
-
-    console.log({ response });
 
     setLoading(true);
 
@@ -58,10 +65,47 @@ export default function Generate() {
       setOutput((currentOutput) => `${currentOutput}${delta}`);
     }
 
-    console.log({ response });
-    console.log({ output });
-
     setLoading(false);
+  };
+
+  // Convert a file to base64 string
+  const toBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+
+      fileReader.readAsDataURL(file);
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) {
+      return;
+    }
+
+    setFile(event.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      return;
+    }
+
+    setUploading(true);
+
+    const base64 = await toBase64(file);
+
+    const response = await analyse(base64 as string);
+
+    setImageAnalysis(response);
+    setUploading(false);
   };
 
   if (loading) {
@@ -89,7 +133,13 @@ export default function Generate() {
         {/* Container for image upload */}
         <div className="upload_container">
           <label htmlFor="upload_input">Upload an image: </label>
-          <input id="upload_input" type="file" accept="image/*" />
+          <input
+            id="upload_input"
+            type="file"
+            accept="image/png, image/jpeg"
+            onChange={handleFileChange}
+          />
+          <button onClick={handleUpload}>Upload</button>
         </div>
 
         {/* Container for chef selection */}
@@ -131,7 +181,11 @@ export default function Generate() {
         </div>
 
         {/* Container for generation button */}
-        <button className="generate_container" onClick={handleSubmit}>
+        <button
+          className="generate_container"
+          onClick={handleSubmit}
+          disabled={uploading}
+        >
           {buttonText}
         </button>
       </div>

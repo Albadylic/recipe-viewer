@@ -2,7 +2,6 @@
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
-// Analyse image
 
 // Prompt GPT with image data (ingredients), prompt, and chef
 
