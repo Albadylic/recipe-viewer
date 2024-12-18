@@ -7,6 +7,22 @@ import { readStreamableValue } from "ai/rsc";
 
 export const runtime = "edge";
 
+const chefs = [
+  {
+    name: "Mario",
+    emoji: "👨🏻‍🍳",
+    description:
+      "An Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
+    buttonText: "Letsa go!",
+  },
+  {
+    name: "Sigma Chad",
+    emoji: "🔥",
+    description: "A Gen Z chef whos riz makes every recipe hit different.",
+    buttonText: "Let him cook!",
+  },
+];
+
 export default function Generate() {
   // State to store the file
   const [file, setFile] = useState<File | null>(null);
@@ -16,9 +32,7 @@ export default function Generate() {
   const [uploading, setUploading] = useState<boolean>(false);
 
   // States for the chef description and buttonText
-  const [chef, setChef] = useState(
-    "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
-  );
+  const [chef, setChef] = useState(chefs[0]["description"]);
   const [buttonText, setButtonText] = useState("Letsa go!");
 
   // State for user prompt
@@ -27,22 +41,6 @@ export default function Generate() {
   // States for loading and final output
   const [loading, setLoading] = useState<boolean>(false);
   const [output, setOutput] = useState<string>("");
-
-  const chefs = [
-    {
-      name: "Mario",
-      emoji: "👨🏻‍🍳",
-      description:
-        "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
-      buttonText: "Letsa go!",
-    },
-    {
-      name: "Sigma Chad",
-      emoji: "🔥",
-      description: "a Gen Z chef whos riz makes every recipe hit different.",
-      buttonText: "Let him cook!",
-    },
-  ];
 
   const handleChefChange = (description: string, buttonText: string) => {
     setChef(description);
