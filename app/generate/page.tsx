@@ -47,7 +47,7 @@ export default function Generate() {
     setButtonText(buttonText);
   };
 
-  const handlePromptChange = (event) => {
+  const handlePromptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(event.target.value);
   };
 
