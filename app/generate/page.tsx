@@ -11,11 +11,9 @@ export default function Generate() {
   // State to store the file
   const [file, setFile] = useState<File | null>(null);
 
-  // State to store the base64
-  const [base64, setBase64] = useState<string | null>(null);
-
   // State to store the returned analysis
   const [imageAnalysis, setImageAnalysis] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
 
   // States for the chef description and buttonText
   const [chef, setChef] = useState(
@@ -58,7 +56,7 @@ export default function Generate() {
   const handleSubmit = async () => {
     // Call the APIs and retrieve a response
     const { response } = await generate(
-      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}.`
+      `You are ${chef}. Generate a recipe for ${imageAnalysis}. Take note of the following: ${prompt}.`
     );
 
     setLoading(true);
@@ -100,13 +98,14 @@ export default function Generate() {
       return;
     }
 
+    setUploading(true);
+
     const base64 = await toBase64(file);
 
-    setBase64(base64 as string);
-
     const response = await analyse(base64 as string);
-    console.log(response);
+
     setImageAnalysis(response);
+    setUploading(false);
   };
 
   if (loading) {
@@ -182,7 +181,11 @@ export default function Generate() {
         </div>
 
         {/* Container for generation button */}
-        <button className="generate_container" onClick={handleSubmit}>
+        <button
+          className="generate_container"
+          onClick={handleSubmit}
+          disabled={uploading}
+        >
           {buttonText}
         </button>
       </div>

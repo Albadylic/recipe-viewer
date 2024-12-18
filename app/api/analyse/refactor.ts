@@ -5,7 +5,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function analyse(input: string) {
   const prompt = `
-    Analysing a picture of food and drink. Describe the visible food and drink items, list ingredients if detectable, and suggest the name for the dish if you can deduce it.`;
+    Analysing this picture of food. Describe the visible food and drink items, list ingredients if detectable, and suggest the name for the dish if you can deduce it.`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -13,7 +13,7 @@ export async function analyse(input: string) {
       {
         role: "user",
         content: [
-          { type: "text", text: "What's in this image?" },
+          { type: "text", text: prompt },
           {
             type: "image_url",
             image_url: {
