@@ -1,28 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { generate } from "../api/chat/actions";
+import { readStreamableValue } from "ai/rsc";
+
+export const runtime = "edge";
 
 export default function Generate() {
   const [image, setImage] = useState(null);
 
   const [chef, setChef] = useState(
-    "An Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
+    "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company"
   );
-
   const [buttonText, setButtonText] = useState("Letsa go!");
+
+  const [prompt, setPrompt] = useState<string>("");
+
+  const [output, setOutput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const chefs = [
     {
       name: "Mario",
       emoji: "👨🏻‍🍳",
       description:
-        "An Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
+        "an Italian plumber turned chef after being defamed for copyright infringement by a large Japanese Video Game company",
       buttonText: "Letsa go!",
     },
     {
       name: "Sigma Chad",
       emoji: "🔥",
-      description: "A Gen Z chef whos riz makes every recipe hit different.",
+      description: "a Gen Z chef whos riz makes every recipe hit different.",
       buttonText: "Let him cook!",
     },
   ];
@@ -32,59 +40,101 @@ export default function Generate() {
     setButtonText(buttonText);
   };
 
-  const handleSubmit = () => {
-    // Call the APIs and retrieve a response
+  const handlePromptChange = (event) => {
+    setPrompt(event.target.value);
   };
 
-  return (
-    <div className="container">
-      {/* Container for image upload */}
-      <div className="upload_container">
-        <label htmlFor="upload_input">Upload an image: </label>
-        <input id="upload_input" type="file" accept="image/*" />
+  const handleSubmit = async () => {
+    // Call the APIs and retrieve a response
+    const { response } = await generate(
+      `You are ${chef}. Generate a recipe with cabbage. Take note of the following: ${prompt}.`
+    );
+
+    console.log({ response });
+
+    setLoading(true);
+
+    for await (const delta of readStreamableValue(response)) {
+      setOutput((currentOutput) => `${currentOutput}${delta}`);
+    }
+
+    console.log({ response });
+    console.log({ output });
+
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
       </div>
-
-      {/* Container for chef selection */}
-      <div className="chef_container">
-        <label htmlFor="chef_radios">Pick a chef</label>
-        {chefs.map(({ name, emoji, description, buttonText }, index) => {
-          return (
-            <div
-              key={name}
-              className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
-            >
-              <input
-                id={name}
-                type="radio"
-                value={name}
-                name="genre"
-                onChange={() => handleChefChange(description, buttonText)}
-                defaultChecked={index == 0 ? true : false}
-              />
-              <label className="ml-2" htmlFor={name}>
-                {`${emoji} ${name}`}
-              </label>
-              <p>{description}</p>
-            </div>
-          );
-        })}
+    );
+  } else if (output !== "") {
+    return (
+      <div className="container">
+        <div className="output_container">
+          <p className="output_text">{output}</p>
+        </div>
+        <div className="restart_container">
+          <button className="restart_button" onClick={() => setOutput("")}>
+            Reset
+          </button>
+        </div>
       </div>
+    );
+  } else {
+    return (
+      <div className="container">
+        {/* Container for image upload */}
+        <div className="upload_container">
+          <label htmlFor="upload_input">Upload an image: </label>
+          <input id="upload_input" type="file" accept="image/*" />
+        </div>
 
-      {/* Container for image upload */}
+        {/* Container for chef selection */}
+        <div className="chef_container">
+          <label htmlFor="chef_radios">Pick a chef</label>
+          {chefs.map(({ name, emoji, description, buttonText }, index) => {
+            return (
+              <div
+                key={name}
+                className="p-4 m-2 bg-opacity-25 bg-gray-600 rounded-lg"
+              >
+                <input
+                  id={name}
+                  type="radio"
+                  value={description}
+                  name="chef"
+                  onChange={() => handleChefChange(description, buttonText)}
+                  defaultChecked={index == 0 ? true : false}
+                />
+                <label className="ml-2" htmlFor={name}>
+                  {`${emoji} ${name}`}
+                </label>
+                <p>{description}</p>
+              </div>
+            );
+          })}
+        </div>
 
-      <div className="prompt_container">
-        <label htmlFor="prompt_input">Prompt</label>
-        <input
-          type="textarea"
-          id="prompt_input"
-          placeholder="Enter any additional information here..."
-        />
+        {/* Container for further prompting */}
+
+        <div className="prompt_container">
+          <label htmlFor="prompt_input">Prompt</label>
+          <input
+            type="textarea"
+            id="prompt_input"
+            placeholder="Enter any additional information here..."
+            onChange={handlePromptChange}
+          />
+        </div>
+
+        {/* Container for generation button */}
+        <button className="generate_container" onClick={handleSubmit}>
+          {buttonText}
+        </button>
       </div>
-
-      {/* Container for generation button */}
-      <button className="generate_container" onClick={handleSubmit}>
-        {buttonText}
-      </button>
-    </div>
-  );
+    );
+  }
 }
